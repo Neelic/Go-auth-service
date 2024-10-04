@@ -3,7 +3,9 @@ package main
 import (
 	"log/slog"
 	"os"
-	"url-service/internal/config"
+	"go-url-service/internal/config"
+	"go-url-service/internal/lib/sl"
+	"go-url-service/internal/storage/sqlite"
 )
 
 const (
@@ -18,7 +20,13 @@ func main() {
 	log := setupLogger(cfg.Env)
 	log.Info("Starting service", "env", cfg.Env)
 
-	
+	storage, err := sqlite.New(cfg.StoragePath)
+	if err != nil {
+		log.Error("Failed to create storage", sl.Err(err))
+		os.Exit(1)
+	}
+
+	_ = storage
 }
 
 func setupLogger(env string) *slog.Logger {
