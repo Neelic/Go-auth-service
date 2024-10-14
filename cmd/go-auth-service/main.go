@@ -1,11 +1,15 @@
 package main
 
 import (
-	"log/slog"
-	"os"
 	"go-url-service/internal/config"
+	"go-url-service/internal/http-server/middleware/logger"
 	"go-url-service/internal/lib/sl"
 	"go-url-service/internal/storage/sqlite"
+	"log/slog"
+	"os"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 const (
@@ -25,6 +29,12 @@ func main() {
 		log.Error("Failed to create storage", sl.Err(err))
 		os.Exit(1)
 	}
+
+	router := chi.NewRouter()
+	router.Use(middleware.RequestID)
+	router.Use(middleware.RealIP)
+	router.Use(logger.New(log))
+
 
 	_ = storage
 }
