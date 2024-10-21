@@ -2,10 +2,12 @@ package main
 
 import (
 	"go-url-service/internal/config"
+	"go-url-service/internal/http-server/handlers/url/save"
 	"go-url-service/internal/http-server/middleware/logger"
-	"go-url-service/internal/lib/sl"
+	"go-url-service/internal/lib/logger/sl"
 	"go-url-service/internal/storage/sqlite"
 	"log/slog"
+	"net/http"
 	"os"
 
 	"github.com/go-chi/chi/v5"
@@ -32,11 +34,26 @@ func main() {
 
 	router := chi.NewRouter()
 	router.Use(middleware.RequestID)
-	router.Use(middleware.RealIP)
+	router.Use(middleware.Recoverer)
 	router.Use(logger.New(log))
+	router.Use(middleware.URLFormat)
 
+	router.Post("/url", save.New(log, storage))
 
-	_ = storage
+	server := &http.Server{
+		Addr:         cfg.Address,
+		Handler:      router,
+		ReadTimeout:  cfg.HTTPServer.Timeout,
+		WriteTimeout: cfg.HTTPServer.Timeout,
+		IdleTimeout:  cfg.HTTPServer.IdleTimeout,
+	}
+
+	log.Info("Service started", slog.String("address", cfg.Address))
+
+	if err := server.ListenAndServe(); err != nil {
+		log.Error("Failed to start server", sl.Err(err))
+		os.Exit(1)
+	}
 }
 
 func setupLogger(env string) *slog.Logger {
