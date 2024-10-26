@@ -39,9 +39,14 @@ func main() {
 	router.Use(logger.New(log))
 	router.Use(middleware.URLFormat)
 
-	router.Post("/url", save.New(log, storage))
-	router.Get("/url/{alias}", redirect.New(log, storage))
-	router.Delete("/url/{alias}", redirect.New(log, storage))
+	router.Route("/url", func(r chi.Router) {
+		r.Use(middleware.BasicAuth("basic-auth", map[string]string{
+			cfg.HTTPServer.User: cfg.HTTPServer.Password,
+		}))
+
+		r.Post("/", save.New(log, storage))
+		r.Get("/{alias}", redirect.New(log, storage))
+	})
 
 	server := &http.Server{
 		Addr:         cfg.Address,
