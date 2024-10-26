@@ -2,6 +2,7 @@ package main
 
 import (
 	"go-url-service/internal/config"
+	"go-url-service/internal/http-server/handlers/redirect"
 	"go-url-service/internal/http-server/handlers/url/save"
 	"go-url-service/internal/http-server/middleware/logger"
 	"go-url-service/internal/lib/logger/sl"
@@ -39,6 +40,8 @@ func main() {
 	router.Use(middleware.URLFormat)
 
 	router.Post("/url", save.New(log, storage))
+	router.Get("/url/{alias}", redirect.New(log, storage))
+	router.Delete("/url/{alias}", redirect.New(log, storage))
 
 	server := &http.Server{
 		Addr:         cfg.Address,
