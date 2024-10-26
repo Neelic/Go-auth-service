@@ -2,6 +2,7 @@ package random
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -35,6 +36,7 @@ func TestNewRandomString(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			str1 := NewRandomString(tt.size)
+			time.Sleep(time.Second)
 			str2 := NewRandomString(tt.size)
 
 			assert.Len(t, str1, tt.size)

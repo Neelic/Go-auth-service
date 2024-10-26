@@ -34,9 +34,9 @@ func ValidationError(errs validator.ValidationErrors) Response {
 	for _, err := range errs {
 		switch err.ActualTag() {
 		case "required":
-			errsMessages = append(errsMessages, err.Param()+" is required")
+			errsMessages = append(errsMessages, "field " + err.Field()+" is a required")
 		case "url":
-			errsMessages = append(errsMessages, "field "+err.Param()+" is required")
+			errsMessages = append(errsMessages, "field "+err.Field()+" is not a valid URL")
 		default:
 			errsMessages = append(errsMessages, err.Param()+" is invalid")
 		}
